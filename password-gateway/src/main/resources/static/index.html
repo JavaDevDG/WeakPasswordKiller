@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeakPasswordKiller UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            
+            --score-0: #ef4444;
+            --score-1: #f97316;
+            --score-2: #eab308;
+            --score-3: #22c55e;
+            --score-4: #10b981;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            margin: 0 0 32px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .meter-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .status-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feedback {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .warning-text { color: #fca5a5; margin-bottom: 8px; }
+        .crack-time { color: #93c5fd; margin-bottom: 8px; }
+
+        .breach-note { color: #fcd34d; font-size: 13px; margin-top: 8px; }
+
+        .violations { list-style: none; padding: 0; margin: 8px 0 0; }
+        .violations li {
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .suggestion-box {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            color: #bfdbfe;
+        }
+
+        .loading-spinner {
+            position: absolute;
+            right: 48px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            outline: none;
+            transition: opacity 0.3s;
+            opacity: 0.7;
+        }
+
+        .toggle-btn:hover {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Password Security</h1>
+    <p class="subtitle">AI-powered enterprise password evaluation</p>
+
+    <div class="input-group">
+        <input type="text" id="username" placeholder="Username" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <input type="email" id="email" placeholder="Email" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <input type="password" id="password" placeholder="Enter your password..." autocomplete="new-password" style="padding-right: 80px;">
+        <div class="loading-spinner" id="spinner"></div>
+        <button type="button" id="toggle-password" class="toggle-btn" aria-label="Toggle password visibility">
+            👁️
+        </button>
+    </div>
+
+    <div class="meter-container">
+        <div class="meter-fill" id="meter"></div>
+    </div>
+    <div class="status-text">
+        <span id="strength-label">Type to evaluate...</span>
+        <span id="score-label"></span>
+    </div>
+
+    <div class="feedback" id="feedback-panel">
+        <div class="crack-time" id="crack-time-display"></div>
+        <div class="warning-text" id="warning-display"></div>
+        <div class="breach-note" id="breach-note" style="display: none;"></div>
+        <ul class="violations" id="violations-display" style="display: none;"></ul>
+        <div class="suggestion-box" id="suggestion-display" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const meter = document.getElementById('meter');
+    const strengthLabel = document.getElementById('strength-label');
+    const scoreLabel = document.getElementById('score-label');
+    const spinner = document.getElementById('spinner');
+
+    const feedbackPanel = document.getElementById('feedback-panel');
+    const crackTimeDisplay = document.getElementById('crack-time-display');
+    const warningDisplay = document.getElementById('warning-display');
+    const breachNote = document.getElementById('breach-note');
+    const violationsDisplay = document.getElementById('violations-display');
+    const suggestionDisplay = document.getElementById('suggestion-display');
+
+    let debounceTimer;
+
+    // Human-readable text for each rule violation returned by the backend.
+    const VIOLATION_MESSAGES = {
+        TOO_SHORT: 'Too short — use at least 8 characters',
+        EASILY_GUESSABLE: 'Too easy to guess',
+        CONTAINS_PERSONAL_INFO: 'Must not contain your username or email',
+        LACKS_COMPLEXITY: 'Add more variety (letters, numbers, symbols)',
+        COMPROMISED: 'Found in a known data breach'
+    };
+
+    function isValidEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function showMessage(text) {
+        meter.style.width = '0%';
+        strengthLabel.textContent = '';
+        scoreLabel.textContent = '';
+        crackTimeDisplay.textContent = '';
+        warningDisplay.textContent = text;
+        breachNote.style.display = 'none';
+        violationsDisplay.style.display = 'none';
+        suggestionDisplay.style.display = 'none';
+        feedbackPanel.classList.add('visible');
+    }
+
+    const colors = [
+        'var(--score-0)',
+        'var(--score-1)',
+        'var(--score-2)',
+        'var(--score-3)',
+        'var(--score-4)'
+    ];
+
+    async function evaluatePassword(pwd, usr, email) {
+        // Client-side input checks — give instant, friendly feedback before hitting the server.
+        if (!pwd) {
+            resetUI();
+            return;
+        }
+        if (email && !isValidEmail(email)) {
+            showMessage('Please enter a valid email address.');
+            return;
+        }
+
+        spinner.style.display = 'block';
+
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            const response = await fetch('/api/v1/password/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd, username: usr, email: email }),
+                signal: controller.signal
+            });
+            clearTimeout(timeout);
+
+            if (response.status === 429) {
+                warningDisplay.textContent = "Rate limit exceeded! Slow down.";
+                feedbackPanel.classList.add('visible');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            if (!response.ok) {
+                // Surface the server's structured validation message when available.
+                let msg = "Could not evaluate password (server returned " + response.status + ").";
+                try {
+                    const errBody = await response.json();
+                    const firstMsg = errBody && typeof errBody === 'object' ? Object.values(errBody)[0] : null;
+                    if (firstMsg) msg = firstMsg;
+                } catch (_) { /* no JSON body — keep the generic message */ }
+                showMessage(msg);
+                return;
+            }
+
+            const data = await response.json();
+            updateUI(data);
+        } catch (err) {
+            console.error('Error:', err);
+            warningDisplay.textContent = "Service unavailable.";
+            feedbackPanel.classList.add('visible');
+        } finally {
+            spinner.style.display = 'none';
+        }
+    }
+
+    function updateUI(data) {
+        const percentage = data.score === 0 ? 10 : (data.score / 4) * 100;
+        meter.style.width = percentage + '%';
+        
+        let color = colors[data.score];
+        if (data.compromised) color = colors[0];
+        meter.style.background = color;
+        strengthLabel.style.color = color;
+
+        strengthLabel.textContent = data.strength.replace('_', ' ');
+        scoreLabel.textContent = `Score: ${data.score}/4`;
+
+        feedbackPanel.classList.add('visible');
+        
+        if (data.crackTime) {
+            crackTimeDisplay.innerHTML = `⏱️ Est. Offline Crack Time: <strong>${data.crackTime}</strong>`;
+        } else {
+            crackTimeDisplay.textContent = '';
+        }
+
+        warningDisplay.textContent = data.warning || '';
+
+        // Render the backend rule violations as a readable checklist.
+        violationsDisplay.innerHTML = '';
+        const violations = (data.violations || []).filter(v => v !== 'COMPROMISED');
+        if (violations.length > 0) {
+            violations.forEach(v => {
+                const li = document.createElement('li');
+                li.textContent = '⚠️ ' + (VIOLATION_MESSAGES[v] || v);
+                violationsDisplay.appendChild(li);
+            });
+            violationsDisplay.style.display = 'block';
+        } else {
+            violationsDisplay.style.display = 'none';
+        }
+
+        // Transparency: warn when the breach database could not be reached.
+        if (data.breachCheckStatus === 'UNAVAILABLE') {
+            breachNote.textContent = 'ℹ️ Breach check unavailable — could not verify against known data leaks.';
+            breachNote.style.display = 'block';
+        } else {
+            breachNote.style.display = 'none';
+        }
+
+        if (data.suggestedStrongPassword) {
+            suggestionDisplay.style.display = 'block';
+            suggestionDisplay.innerHTML = `💡 Try this strong alternative: <br><strong style="letter-spacing: 1px; color: #fff;">${data.suggestedStrongPassword}</strong>`;
+        } else {
+            suggestionDisplay.style.display = 'none';
+        }
+    }
+
+    function resetUI() {
+        meter.style.width = '0%';
+        strengthLabel.textContent = 'Type to evaluate...';
+        strengthLabel.style.color = 'var(--text-muted)';
+        scoreLabel.textContent = '';
+        feedbackPanel.classList.remove('visible');
+        breachNote.style.display = 'none';
+        violationsDisplay.style.display = 'none';
+        suggestionDisplay.style.display = 'none';
+    }
+
+    function onInput() {
+        clearTimeout(debounceTimer);
+        const pwd = passwordInput.value;
+        const usr = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        debounceTimer = setTimeout(() => evaluatePassword(pwd, usr, email), 500);
+    }
+
+    passwordInput.addEventListener('input', onInput);
+    usernameInput.addEventListener('input', onInput);
+    emailInput.addEventListener('input', onInput);
+
+    const togglePasswordBtn = document.getElementById('toggle-password');
+    togglePasswordBtn.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        togglePasswordBtn.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+</script>
+</body>
+</html>
